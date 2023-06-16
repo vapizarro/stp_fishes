@@ -31,6 +31,7 @@ for (i in 1:30) {
   numberbio <- c(numberbio, numero)
 }
 
+#We use for to automate the script for each bioregion, the results are saved per bioregion as shapefiles.
 
 for (i in numberbio) {
 
@@ -198,7 +199,7 @@ st_write(h2, nombre,  delete_dsn = TRUE )
 }
 
 
-#### Análisis de datos ####
+#### Data analysis ####
 
 numberbio <- c()
 for (i in 1:30) {
@@ -220,6 +221,8 @@ brg<- rbind(brg, br)
 
 }
 
+# If the species richness of the cell = 1, the coef will be 1.25 to be able to classify it later as "IR", insufficient records.
+
 brg$Coef<- ifelse(brg$Riqueza == 1, 
                   1.25 ,
                   brg$coef)
@@ -229,39 +232,43 @@ st_write(brg, "capas/r10.shp",  delete_dsn = TRUE )
 
 brg<- as.data.frame(brg)
 
-
   
-# Definir los límites de los intervalos y las etiquetas de clasificación
-br<-st_read("capas/r10.shp")
+#Define interval boundaries and cell sorting labels
+br<-st_read("capas/r1.shp")
 bins = c(0, 0.60, 0.85, 1, 1.3)
-labels = c('Bajo', 'Adecuado', 'Bueno', "DI")
+labels = c('Few', 'Sufficient', 'Adequate', "IR")
 
 br$class = cut(br$coef, breaks = bins, labels = labels, right = FALSE)
+
+
+#count the area by bioregion for each classification and the total area for each classification
 
 data<- data.frame()
 for (i in 1:30) {
   br1<- filter(br, Realm == i)
   
-  data1<- data.frame(Boregion = i,
+  data1<- data.frame(Bioregion = i,
                      Superficie = as.numeric(sum(st_area(br1))),
-                     Bajo =as.numeric(sum(st_area(filter(br1, class == "Bajo")))),
-                     Adecuado = as.numeric(sum(st_area(filter(br1, class == "Adecuado")))),
-                     Bueno = as.numeric(sum(st_area(filter(br1, class == "Bueno")))),
-                     DI = as.numeric(sum(st_area(filter(br1, class == "DI")))))
+                     "F" =as.numeric(sum(st_area(filter(br1, class == "Few")))),
+                     "S" = as.numeric(sum(st_area(filter(br1, class == "Sufficient")))),
+                     "A" = as.numeric(sum(st_area(filter(br1, class == "Adequate")))),
+                     "IR" = as.numeric(sum(st_area(filter(br1, class == "IR")))))
   data<- rbind(data, data1)
   
 }
 
 
 data$N_A<- rowSums(data[,3:6])
-data$N_A<- data$Superficie- data$N_A
+data$N_A<- data$Superficie - data$N_A
+
+#define the area ratio for each classification
 
 data<- data %>%
   mutate(P_NA = (N_A/Superficie)*100,
-         P_DI = (DI/Superficie)*100,
-         PBajo = (Bajo/Superficie)*100,
-         PAdecuado = (Adecuado/Superficie)*100,
-         PBueno = (Bueno/Superficie)*100)
+         P_IR = (IR/Superficie)*100,
+         P_F = ('F'/Superficie)*100,
+         P_S = (S/Superficie)*100,
+         P_A = (A/Superficie)*100)
 
 
 write.table(data, "clipboard", sep="\t", row.names=F)
