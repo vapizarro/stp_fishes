@@ -1,6 +1,7 @@
 library(rfishbase)
 library(dplyr)
 library(ggplot2)
+library(extrafont)
 
 ### 1. Agregar las caracteristicas ###
 
@@ -51,7 +52,7 @@ cor.test(Tam$LogClass, Tam$LogFrec)
 cor.test(Prf$LogClas, Prf$LogFrec)
 
 
-#library(extrafont)
+
 loadfonts(device = "win", quiet = TRUE) 
 #Tend1<- supsmu(Tam$LogClass, Tam$LogFrec, bass = 10)
 plot(Tam$LogClass, Tam$LogFrec, 
