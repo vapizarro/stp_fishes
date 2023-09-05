@@ -5,6 +5,7 @@ library(rworldxtra)
 library(cartography)
 library(paletteer)
 library(gridExtra)
+library(readxl)
 library(paletteer)
 
 
@@ -345,5 +346,50 @@ ggplot(data= ab, aes(x= Year, y =ac, color = B))+
 dev.off()
 
 
+#### Pendiente ####
 
+br<- st_read("shape/Costello_equalarea.shp")
+Pendiente <- read_excel("C:/R/Art/Libro1.xlsx")
+
+br<- merge(br, Pendiente)
+
+
+pdf("pdf1.pdf", height = 5, width = 9)
+par(mar = c(0,0,0,0))
+plot(st_geometry(br), col = NA , border = NA, 
+     bg = "white")
+choroLayer(x = br, var = "Pendiente", 
+           col = c("#FCFDBF","#FD9B6B", "#CC3F71","#2F1163"),
+           breaks =  c(0, 0.5, 1, 2, 4),
+           border = "grey80", 
+           lwd = 0.2, 
+           legend.pos = "bottom" , 
+           legend.frame = T,
+           add = TRUE) 
+layoutLayer(title = "", 
+            author = " ",
+            sources = "",
+            frame = FALSE, 
+            scale = 5, 
+            tabtitle = TRUE,
+            theme = "white")
+labelLayer(x= br, 
+           txt = "Realm", col = "black",r = 0.1, cex = 0.8,
+           halo = T)
+dev.off()
+
+
+pdf("plot.pdf", height = 5, width = 9)
+par( mar = c(0,0,0,0))
+plot(st_geometry(br), col = NA , border = NA, 
+     bg = "white",  lty = 3)
+choroLayer(x = br, var = "Realm", 
+           col = col1,
+           nclass= 30, 
+           border = "#545454", 
+           lwd = 0.5, legend.pos = F , add = TRUE) 
+labelLayer(x= br, 
+           txt = "Realm", col = "black",r = 0.1, cex = 0.7,
+           halo = TRUE)
+dev.off()
 
